@@ -1,3 +1,6 @@
+[![CircleCI](https://circleci.com/gh/monokrome/platform-discovery.svg?style=svg)](https://circleci.com/gh/monokrome/platform-discovery)
+
+
 docker-discover is a service discovery container that leverages haproxy and etcd.  When running,
 it sets up listeners for remote docker containers discovered via etcd.  It works in tandem with
 docker-register.
