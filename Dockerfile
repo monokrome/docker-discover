@@ -10,12 +10,11 @@ RUN tar -zxvf haproxy-1.5.1.tar.gz
 
 RUN cd haproxy-1.5.1 && make TARGET=generic && make install
 
+ADD . /app
+WORKDIR /app
+
 RUN pip install -r requirements.txt
 RUN touch /var/run/haproxy.pid
-
-ADD . /app
-
-WORKDIR /app
 
 EXPOSE 1936
 
