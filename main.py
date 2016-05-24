@@ -8,10 +8,12 @@ import signal
 import sys
 import time
 
+
 env = Environment(loader=PackageLoader('haproxy', 'templates'))
-POLL_TIMEOUT=5
+POLL_TIMEOUT = 5
 
 signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+
 
 def get_etcd_addr():
     if "ETCD_HOST" not in os.environ:
@@ -31,11 +33,11 @@ def get_etcd_addr():
 
     return host, port
 
-def get_services():
 
+def get_services():
     host, port = get_etcd_addr()
     client = etcd.Client(host=host, port=int(port))
-    backends = client.read('/backends', recursive = True)
+    backends = client.read('/backends', recursive=True)
     services = {}
 
     for i in backends.children:
@@ -50,6 +52,7 @@ def get_services():
             continue
         endpoints["backends"].append(dict(name=container, addr=i.value))
     return services
+
 
 def generate_config(services):
     template = env.get_template('haproxy.cfg.tmpl')
