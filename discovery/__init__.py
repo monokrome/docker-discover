@@ -2,14 +2,13 @@
 
 import etcd
 import os
-import signal
-import sys
 import re
+import signal
+import subprocess
+import sys
 
 from jinja2 import Environment
 from jinja2 import PackageLoader
-
-import subprocess
 
 
 env = Environment(loader=PackageLoader('haproxy', 'templates'))
@@ -58,26 +57,27 @@ def get_backends():
     host, port = get_etcd_address()
 
     backends_path = get_setting('ETCD_BACKENDS_PATH', default='/backends')
-    port_key = get_setting('ETCD_PORT_KEY', default='port')
+    option_keys_env_value = get_setting('ETCD_OPTION_KEYS', default='PORT')
+    option_keys = set(option_keys_env_value.upper().split(','))
 
     client = etcd.Client(host=host, port=port)
-
     backends = client.read(backends_path, recursive=True)
+
     services = {}
 
     for i in backends.children:
         if i.key[1:].count('/') != 2:
             continue
 
-        ignore, service, container = i.key[1:].split('/')
+        ignore, service, key = i.key[1:].split('/')
         endpoints = services.setdefault(service, dict(port='', backends=[]))
 
-        if container == port_key:
+        if key.upper() in option_keys:
             port_setting = re.sub(r'[^A-Z]', '_', service.upper()) + '_PORT'
-            endpoints[port_key] = get_setting(port_setting, default=i.value)
+            endpoints[key] = get_setting(port_setting, default=i.value)
             continue
 
-        endpoints['backends'].append(dict(name=container, addr=i.value))
+        endpoints['backends'].append(dict(name=key, addr=i.value))
 
     return services
 
