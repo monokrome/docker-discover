@@ -17,6 +17,7 @@ if __name__ == '__main__':
     """
 
     poll_timeout = get_setting('POLL_TIMEOUT', default=5, as_type=int)
+    service = polling_service()
 
-    while polling_service():
+    while service.next():
         time.sleep(poll_timeout)
