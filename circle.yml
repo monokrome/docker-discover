@@ -1,0 +1,4 @@
+test:
+  override:
+    - flake8 discovery main.py
+    - py.test --cov=discovery -rssX -q discovery/tests.py

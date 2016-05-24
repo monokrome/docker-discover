@@ -1,1 +1,7 @@
+# Python intermediate files
 *.pyc
+*.pyo
+
+# Non-git hidden files
+.*
+!.git*
