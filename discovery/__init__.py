@@ -4,6 +4,7 @@ import etcd
 import os
 import signal
 import sys
+import re
 
 from jinja2 import Environment
 from jinja2 import PackageLoader
@@ -72,7 +73,8 @@ def get_backends():
         endpoints = services.setdefault(service, dict(port='', backends=[]))
 
         if container == port_key:
-            endpoints[port_key] = i.value
+            port_setting = re.sub(r'[^A-Z]', '_', service.upper()) + '_PORT'
+            endpoints[port_key] = get_setting(port_setting, default=i.value)
             continue
 
         endpoints['backends'].append(dict(name=container, addr=i.value))

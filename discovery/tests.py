@@ -72,6 +72,7 @@ class DiscoveryTestCase(unittest.TestCase):
     )
 
     def setUp(self):
+        mock.patch('etcd.Client', FakeClient)
         mock.patch('subprocess.call', call_with_success_return_code)
 
         for key in self.cleared_env_variables:
@@ -137,3 +138,12 @@ class DiscoveryTestCase(unittest.TestCase):
                     ],
                 },
             })
+
+    def test_get_backends_uses_custom_port_key(self):
+        with mock.patch('etcd.Client', FakeClient):
+            os.environ['EXAMPLE_PORT'] = '80'
+
+            services = get_backends()
+            serving_port = services['example']['port']
+
+            self.assertEquals(serving_port, '80')
