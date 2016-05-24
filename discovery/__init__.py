@@ -31,16 +31,13 @@ def get_setting(key, default=None, as_type=None):
     return value
 
 
-def get_etcd_addr(split_by=':'):
-    host_info = get_setting('ETCD_HOST').split(':')
+def get_etcd_address():
+    host_info = get_setting('ETCD_HOST', '127.0.0.1').split(':')
 
-    host = '127.0.0.1'
+    host = host_info[0]
     port = 4001
 
-    if len(host_info) > 0:
-        host = host_info[0]
-
-    if len(host_info) > 2:
+    if len(host_info) > 1:
         try:
             port = int(host_info[1])
         except ValueError:
@@ -53,14 +50,11 @@ def get_etcd_addr(split_by=':'):
 
             sys.exit(3)
 
-    if split_by in host:
-        host, port = host.split(split_by)
-
     return host, port
 
 
 def get_services():
-    host, port = get_etcd_addr()
+    host, port = get_etcd_address()
 
     backends_path = get_setting('ETCD_BACKENDS_PATH', default='/backends')
     port_key = get_setting('ETCD_PORT_KEY', default='port')

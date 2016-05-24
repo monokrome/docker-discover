@@ -4,7 +4,11 @@ import sys
 import unittest
 
 from . import get_setting
+from . import get_etcd_address
 
+
+EXAMPLE_DOMAIN = 'example.com'
+EXAMPLE_PORT = '7373'
 
 DEFAULT_ENV_VALUE = {}
 MOCKED_ENV_VALUE = 'mock succeeded'
@@ -13,9 +17,17 @@ UNMOCKED_ENV_VAR = 'UNMOCKED_ENV_VAR'
 
 
 class DiscoveryTestCase(unittest.TestCase):
+    cleared_env_variables = (
+        'ETCD_HOST',
+        UNMOCKED_ENV_VAR,
+    )
+
     def setUp(self):
-        if UNMOCKED_ENV_VAR in os.environ:
-            del os.environ[UNMOCKED_ENV_VAR]
+        for key in self.cleared_env_variables:
+            if key not in os.environ:
+                continue
+
+            del os.environ[key]
 
         os.environ[MOCKED_ENV_VAR] = MOCKED_ENV_VALUE
 
@@ -33,3 +45,25 @@ class DiscoveryTestCase(unittest.TestCase):
         with mock.patch('sys.exit'):
             result = get_setting(MOCKED_ENV_VAR, default=DEFAULT_ENV_VALUE)
             self.assertIs(result, MOCKED_ENV_VALUE)
+
+    def test_get_etcd_address_returns_localhost_as_default(self):
+        self.assertEquals(get_etcd_address(), (
+            '127.0.0.1',
+            4001,
+        ))
+
+    def test_get_etcd_address_returns_4001_as_default_port(self):
+        os.environ['ETCD_HOST'] = DOMAIN = 'example.com'
+
+        self.assertEquals(get_etcd_address(), (
+            DOMAIN,
+            4001,
+        ))
+
+    def test_get_etcd_address_returns_provided_port_with_domain(self):
+        os.environ['ETCD_HOST'] = EXAMPLE_DOMAIN + ':' + EXAMPLE_PORT
+
+        self.assertEquals(get_etcd_address(), (
+            EXAMPLE_DOMAIN,
+            int(EXAMPLE_PORT),
+        ))
