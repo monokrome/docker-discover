@@ -53,15 +53,15 @@ def get_etcd_address():
     return host, port
 
 
-def get_services():
+def get_backends():
     host, port = get_etcd_address()
 
     backends_path = get_setting('ETCD_BACKENDS_PATH', default='/backends')
     port_key = get_setting('ETCD_PORT_KEY', default='port')
 
     client = etcd.Client(host=host, port=port)
-    backends = client.read(backends_path, recursive=True)
 
+    backends = client.read(backends_path, recursive=True)
     services = {}
 
     for i in backends.children:
@@ -75,7 +75,7 @@ def get_services():
             endpoints[port_key] = i.value
             continue
 
-        endpoints[backends_path].append(dict(name=container, addr=i.value))
+        endpoints['backends'].append(dict(name=container, addr=i.value))
 
     return services
 
@@ -94,7 +94,7 @@ def polling_service():
 
     while True:
         try:
-            services = get_services()
+            services = get_backends()
 
             if services == current_services:
                 yield current_services
