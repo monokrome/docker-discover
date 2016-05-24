@@ -8,7 +8,7 @@ import sys
 from jinja2 import Environment
 from jinja2 import PackageLoader
 
-from subprocess import call
+import subprocess
 
 
 env = Environment(loader=PackageLoader('haproxy', 'templates'))
@@ -103,7 +103,10 @@ def polling_service():
             generate_configuration(services)
 
             print('Configuration changed. Reloading haproxy.')
-            error_code = call(['./reload-haproxy.sh'])
+
+            error_code = subprocess.call([
+                './reload-haproxy.sh',
+            ])
 
             if error_code != 0:
                 print('Haproxy reload aborted. Error code was {}'.format(
