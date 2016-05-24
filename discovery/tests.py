@@ -34,6 +34,14 @@ class AttributeDict(dict):
         self.__dict__ = self
 
 
+def call_with_success_return_code():
+    return 0
+
+
+def call_with_erroneous_return_code():
+    return 0
+
+
 class FakeClient(object):
     def __init__(self, host, port):
         pass
@@ -64,6 +72,8 @@ class DiscoveryTestCase(unittest.TestCase):
     )
 
     def setUp(self):
+        mock.patch('subprocess.call', call_with_success_return_code)
+
         for key in self.cleared_env_variables:
             if key not in os.environ:
                 continue
