@@ -3,11 +3,11 @@
 
 import time
 
-from discovery import get_setting
-from discovery import polling_service
+from .settings import get_setting
+from . import service
 
 
-if __name__ == '__main__':
+def main():
     """ Poll etcd at a regular interval.
 
     Polls etcd for changes and applies them to haproxy at a regular interval.
@@ -17,7 +17,11 @@ if __name__ == '__main__':
     """
 
     poll_timeout = get_setting('POLL_TIMEOUT', default=5, as_type=int)
-    service = polling_service()
+    poll = service.polling_service()
 
-    while service.next():
+    while poll.next():
         time.sleep(poll_timeout)
+
+
+if __name__ == '__main__':
+    main()

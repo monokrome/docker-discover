@@ -1,11 +1,9 @@
 import mock
 import os
-import sys
 import unittest
 
-from . import get_setting
-from . import get_backends
-from . import get_etcd_address
+from .service import get_backends
+from .service import get_etcd_address
 
 
 def container_path(container_id):
@@ -22,7 +20,6 @@ MOCKED_SERVER_ADDRESS = EXAMPLE_DOMAIN + ':' + EXAMPLE_PORT
 MOCKED_SERVER_ADDRESS_2 = EXAMPLE_DOMAIN + ':' + EXAMPLE_PORT + '2'
 MOCKED_SERVICE_PORT = '80'
 
-DEFAULT_ENV_VALUE = {}
 MOCKED_ENV_VALUE = 'mock succeeded'
 MOCKED_ENV_VAR = 'MOCKED_ENV_VAR'
 UNMOCKED_ENV_VAR = 'UNMOCKED_ENV_VAR'
@@ -65,7 +62,7 @@ class FakeClient(object):
         ])
 
 
-class DiscoveryTestCase(unittest.TestCase):
+class DiscoveryServiceTestCase(unittest.TestCase):
     cleared_env_variables = (
         'ETCD_HOST',
         UNMOCKED_ENV_VAR,
@@ -82,21 +79,6 @@ class DiscoveryTestCase(unittest.TestCase):
             del os.environ[key]
 
         os.environ[MOCKED_ENV_VAR] = MOCKED_ENV_VALUE
-
-    def test_get_setting_exits_program_when_no_default_provided(self):
-        with mock.patch('sys.exit'):
-            get_setting('FAKE_ENV_VAR')
-            self.assertEquals(sys.exit.call_count, 1)
-
-    def test_get_setting_exits_returns_default_when_provided(self):
-        with mock.patch('sys.exit'):
-            result = get_setting(UNMOCKED_ENV_VAR, default=DEFAULT_ENV_VALUE)
-            self.assertIs(result, DEFAULT_ENV_VALUE)
-
-    def test_get_setting_returns_value_if_in_environment(self):
-        with mock.patch('sys.exit'):
-            result = get_setting(MOCKED_ENV_VAR, default=DEFAULT_ENV_VALUE)
-            self.assertIs(result, MOCKED_ENV_VALUE)
 
     def test_get_etcd_address_returns_localhost_as_default(self):
         self.assertEquals(get_etcd_address(), (
