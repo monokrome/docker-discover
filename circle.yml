@@ -3,3 +3,4 @@ test:
     - pip install -r dev_requirements.txt
     - flake8 discovery
     - py.test --cov-report=xml --cov=discovery -rssX -q discovery
+    - coveralls
