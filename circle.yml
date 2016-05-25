@@ -1,5 +1,5 @@
 test:
   override:
     - pip install -r dev_requirements.txt
-    - flake8 discovery main.py
+    - flake8 discovery
     - py.test --cov=discovery -rssX -q discovery
