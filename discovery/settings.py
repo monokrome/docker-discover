@@ -13,6 +13,11 @@ def get_setting(key, default=None, as_type=None):
         try:
             value = as_type(value)
         except ValueError:
-            print('"{}" is not a valid value for {}'.format(key))
+            print("'{}' is not a valid value for {}".format(
+                value,
+                key,
+            ))
+
+            sys.exit(3)
 
     return value
