@@ -5,6 +5,7 @@ import unittest
 
 from .service import get_backends
 from .service import get_etcd_address
+from .service import polling_service
 
 
 def container_path(container_id):
@@ -25,6 +26,10 @@ MOCKED_ENV_VALUE = 'mock succeeded'
 MOCKED_ENV_VAR = 'MOCKED_ENV_VAR'
 UNMOCKED_ENV_VAR = 'UNMOCKED_ENV_VAR'
 
+MOCK_BACKENDS = {
+    'backends': [],
+}
+
 
 class AttributeDict(dict):
     def __init__(self, *args, **kwargs):
@@ -32,12 +37,16 @@ class AttributeDict(dict):
         self.__dict__ = self
 
 
-def call_with_success_return_code():
+def call_with_success_return_code(*args):
     return 0
 
 
-def call_with_erroneous_return_code():
+def call_with_erroneous_return_code(*args):
     return 0
+
+
+def mock_get_backends():
+    return MOCK_BACKENDS
 
 
 class FakeClient(object):
@@ -137,3 +146,15 @@ class DiscoveryServiceTestCase(unittest.TestCase):
             serving_port = services['example']['port']
 
             self.assertEquals(serving_port, '80')
+
+    @mock.patch(
+        'discovery.service.generate_configuration',
+        call_with_success_return_code,
+    )
+    @mock.patch('discovery.service.get_backends', mock_get_backends)
+    @mock.patch('subprocess.call', call_with_success_return_code)
+    def test_polling_service_yields_result_from_get_backends(self):
+        poll = polling_service()
+
+        for _ in xrange(10):
+            self.assertIs(poll.next(), MOCK_BACKENDS)
