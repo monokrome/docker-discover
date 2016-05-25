@@ -1,5 +1,6 @@
 import mock
 import os
+import sys
 import unittest
 
 from .service import get_backends
@@ -101,6 +102,13 @@ class DiscoveryServiceTestCase(unittest.TestCase):
             EXAMPLE_DOMAIN,
             int(EXAMPLE_PORT),
         ))
+
+    def test_get_etcd_address_exits_unless_port_is_integer(self):
+        os.environ['ETCD_HOST'] = EXAMPLE_DOMAIN + ':invalidPort'
+
+        with mock.patch('sys.exit'):
+            get_etcd_address()
+            self.assertEqual(sys.exit.call_count, 1)
 
     def test_get_backends(self):
         with mock.patch('etcd.Client', FakeClient):
