@@ -158,3 +158,12 @@ class DiscoveryServiceTestCase(unittest.TestCase):
 
         for _ in xrange(10):
             self.assertIs(poll.next(), MOCK_BACKENDS)
+
+    @mock.patch(
+        'discovery.service.generate_configuration',
+        call_with_success_return_code,
+    )
+    @mock.patch('discovery.service.get_backends', mock_get_backends)
+    @mock.patch('subprocess.call', call_with_erroneous_return_code)
+    def test_polling_service_yields_backends_when_subprocess_fails(self):
+        self.assertIs(polling_service().next(), MOCK_BACKENDS)
