@@ -18,5 +18,5 @@ RUN touch /var/run/haproxy.pid
 
 EXPOSE 1936
 
-CMD ["python", "main.py"]
+CMD ["python", "-m", "discovery"]
 
